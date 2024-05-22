@@ -1,0 +1,13 @@
+clc; clear variables; close all;
+n = 2; %rząd filtru
+Tp = 0.05;
+sigma2e = 0.1;
+TF = 8*Tp;
+N = 20000;
+tend = 20000*Tp;
+global phat_RIV_n1 PIV_n1;
+phat_RIV_n1 = [0;0;0]';
+Ro = 10;
+PIV_n1 = Ro*eye(3,3);
+
+
