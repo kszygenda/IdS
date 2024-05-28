@@ -58,12 +58,6 @@ end
 clear Sum_buf_uu Sum_buf_yu i;
 G_hat16 = Estg_yu./Estg_uu;
 
-%% Wykreślenie wykresów bodego - podpunkt 4
-
-%to jest małe omega dla parzystej liczby próbek (Wzor 15)
-% D1 = N/2 - 1;
-% k = 0:1:D1;
-% omega_k1 = 2*pi/(D1*Tp) * k;
 omega_k1 = Omega_k1 / Tp;
 LM1 = 20*log10(abs(G_hat15));
 
@@ -112,40 +106,40 @@ xscale log
 grid on
 ylim([-500 500]);
 
-%% Porównanie Rzeczywistego wykresu bodego do estymat wzoru 15 i 16
-G_org = tf(1,[0.1 1.05 0.6 1]);
-[mag,phase,wout] = bode(G_org,omega_k1);
-mag = 20*log10(squeeze(mag));
-phase = squeeze(phase);
-faza = unwrap(angle(G_hat15))*180/pi;
-faza2 = unwrap(angle(G_hat16))*180/pi;
-Wykres3 = figure("Position",[200 200 1400 800]);
-subplot(1,2,1)
-sgtitle('Estymowane wykresy bodego','FontSize',16,'interpreter','latex')
-plot(omega_k1(1:300),LM1(1:300),'LineWidth',3);
-hold on
-plot(omega_k2,LM2,'LineWidth',3);
-plot(wout,mag,'LineWidth',3)
-ylim([-50 10]);
-xlim([wout(1) wout(400)])
-legend('$\hat{G}^*_N$','$\hat{G}_N$','$G_o$','interpreter','latex','fontsize',12);
-title("Wzmocnienie",'Interpreter','latex','FontSize',14)
-ylabel("Magnitude [dB]",'Interpreter','latex','FontSize',12)
-xlabel("czestotliwosc $\omega_k$ [rad] ",'Interpreter','latex','FontSize',12)
-xscale log
-grid on
-
-subplot(1,2,2)
-plot(omega_k1(1:218),faza(1:218),'LineWidth',3);
-hold on
-plot(omega_k2,faza2,'LineWidth',3);
-plot(wout,phase,'LineWidth',3)
-ylim([-500 500]);
-xlim([wout(1) wout(400)])
-legend('$\hat{G}^*_N$','$\hat{G}_N$','$G_o$','interpreter','latex','fontsize',12);
-title("Przesuniecie fazowe",'Interpreter','latex','FontSize',14)
-ylabel("Phase $[^\circ]$",'Interpreter','latex','FontSize',12)
-xlabel("czestotliwosc $\omega_k$ [rad] ",'Interpreter','latex','FontSize',12)
-xscale log
-grid on
+% %% Porównanie Rzeczywistego wykresu bodego do estymat wzoru 15 i 16
+% G_org = tf(1,[0.1 1.05 0.6 1]);
+% [mag,phase,wout] = bode(G_org,omega_k1);
+% mag = 20*log10(squeeze(mag));
+% phase = squeeze(phase);
+% faza = unwrap(angle(G_hat15))*180/pi;
+% faza2 = unwrap(angle(G_hat16))*180/pi;
+% Wykres3 = figure("Position",[200 200 1400 800]);
+% subplot(1,2,1)
+% sgtitle('Estymowane wykresy bodego','FontSize',16,'interpreter','latex')
+% plot(omega_k1(1:300),LM1(1:300),'LineWidth',3);
+% hold on
+% plot(omega_k2,LM2,'LineWidth',3);
+% plot(wout,mag,'LineWidth',3)
+% ylim([-50 10]);
+% xlim([wout(1) wout(400)])
+% legend('$\hat{G}^*_N$','$\hat{G}_N$','$G_o$','interpreter','latex','fontsize',12);
+% title("Wzmocnienie",'Interpreter','latex','FontSize',14)
+% ylabel("Magnitude [dB]",'Interpreter','latex','FontSize',12)
+% xlabel("czestotliwosc $\omega_k$ [rad] ",'Interpreter','latex','FontSize',12)
+% xscale log
+% grid on
+% 
+% subplot(1,2,2)
+% plot(omega_k1(1:218),faza(1:218),'LineWidth',3);
+% hold on
+% plot(omega_k2,faza2,'LineWidth',3);
+% plot(wout,phase,'LineWidth',3)
+% ylim([-500 500]);
+% xlim([wout(1) wout(400)])
+% legend('$\hat{G}^*_N$','$\hat{G}_N$','$G_o$','interpreter','latex','fontsize',12);
+% title("Przesuniecie fazowe",'Interpreter','latex','FontSize',14)
+% ylabel("Phase $[^\circ]$",'Interpreter','latex','FontSize',12)
+% xlabel("czestotliwosc $\omega_k$ [rad] ",'Interpreter','latex','FontSize',12)
+% xscale log
+% grid on
 

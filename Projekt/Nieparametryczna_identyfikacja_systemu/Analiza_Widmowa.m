@@ -16,125 +16,90 @@ for j = 1:3
         load("IdentDataC.mat")
         system = "C";
     end
-% wykres = figure('Position',[0 0 1000 600]);
-% subplot(2,1,1)
-% plot(t,y)
-% title("wyjscie systemu $y$",'interpreter','latex')
-% grid on
-% subplot(2,1,2)
-% plot(t,u)
-% title("wyjscie systemu $u$",'interpreter','latex')
-% grid on
-% sgtitle("Sygnaly systemu nr " + num2str(j))
 
-%% Analiza Widmowa 
-%% 3.1.3
-% Wzór (15) -> G_N = Y_N/U_N
-Y_N = Tp * fft(y);
-U_N = Tp * fft(u);
-ETFE = Y_N./U_N; % Empirical Transfer-Function Estimate
+%% Analiza widmowa
+N = length(u);
+Mw = 600;
+tend = N*Tp; % Czas aby otrzymać N = 1000;
 
-% Wzór (16) -> estymator wygładzony
-Mw = 200; % Szerokosc okna
-for j = 0:N-1
-    ruuP(j+1) = Covar([u u], j);
-    if (j<=Mw)
-        ruuP(j+1) = ruuP(j+1)*0.5*(1+cos(pi*j/Mw));
-    else
-        ruuP(j+1) = ruuP(j+1)*0;
-    end
-end
-Ruu = [ruuP(1:Mw+1) zeros(1,2*N-2*Mw-2) ruuP(Mw+1:-1:2)];
+U = Tp*fft(u);
+Y = Tp*fft(y);
 
-for j = 0:N-1
-    ryuP(j+1) = Covar([y u], j);
-    if (j<=Mw)
-        ryuP(j+1) = ryuP(j+1)*0.5*(1+cos(pi*j/Mw));
-    else
-        ryuP(j+1) = ryuP(j+1)*0;
-    end
+%% Wzór (15) - doswiadzalny estymator transmitancji - podpunkt 3
+k = 0:N-1;
+Omega_k1 = 2*pi/N * k;
+G_hat15 = Y./U;
+
+%% Wzór (16) - iloraz estymatorów gęstości widmowych; - podpunkt 3
+
+Upsilon = N-1; % Symbol nazwany jak odpowiadająca komenda w LateX
+Gamma = 2*Upsilon + 1;
+k = 0:1:Gamma-1;
+Omega_k2 = 2*pi/Gamma * k;
+Tau = -Upsilon:1:Upsilon;
+
+
+%Obliczenie Estymaty korelacji uu i yu
+Est_yu = zeros(length(Tau),1);
+Est_uu = zeros(length(Tau),1);
+
+for i = 1:length(Tau)
+Est_yu(i) = Covar([y u],Tau(i));
+Est_uu(i) = Covar([u u],Tau(i));
 end
 
-for j = 0:N-1
-    i = j-(N-1);
-
-    ryuN(j+1) = Covar([y u], i);
-    if (abs(i)<=Mw)
-        ryuN(j+1) = ryuN(j+1)*0.5*(1+cos(pi*i/Mw));
-    else
-        ryuN(j+1) = ryuN(j+1)*0;
+% Obliczenie Estymaty gęstości widmowych
+Estg_yu = zeros(length(Omega_k2),1);
+Estg_uu = zeros(length(Omega_k2),1);
+for i = 1:length(Omega_k2)
+    Sum_buf_uu = 0;
+    Sum_buf_yu = 0;
+    omega_buf = Omega_k2(i);
+    %Obliczanie sumy 
+    for j = 1:length(Tau)
+    tau = Tau(j);
+    Sum_buf_uu = Sum_buf_uu + Est_uu(j)*Okno_Hanning(tau,Mw)*exp(-1i*omega_buf*tau);
+    Sum_buf_yu = Sum_buf_yu + Est_yu(j)*Okno_Hanning(tau,Mw)*exp(-1i*omega_buf*tau);
     end
+    Estg_uu(i) = Tp*Sum_buf_uu;
+    Estg_yu(i) = Tp*Sum_buf_yu;
 end
+clear Sum_buf_uu Sum_buf_yu i;
+G_hat16 = Estg_yu./Estg_uu;
 
-Ryu = [ryuP(1:Mw+1) zeros(1,2*N-2*Mw-2) ryuN(N-Mw:N-1)];
+omega_k1 = Omega_k1 / Tp;
+LM1 = 20*log10(abs(G_hat15));
+indm = floor(length(omega_k1)/2);% połowa pulsacji
+omega_k2 = Omega_k2 / Tp;
+LM2 = 20*log10(abs(G_hat16));
+indm2 = floor(length(omega_k2)/2);% połowa pulsacji
 
-phi_uu = Tp * fft(Ruu);
-phi_yu = Tp * fft(Ryu);
-
-hat_Gn = phi_yu./phi_uu;
-
-%% 3.1.4
-% ETFE
-LmETFE = 20*log10(abs(ETFE));
-ArgETFE = unwrap(angle(ETFE)) * 180/pi;
-
-Nmm = size(abs(ETFE),1); % liczba elementów
-dOmegam = 2*pi/Nmm; % bin pulsacji
-k = (0:1:Nmm-1);
-Omegam = dOmegam*k; % wektor pulsacji unormowanych [rad]
-omegam = Omegam/Tp; % pulsacje w [rad/s]
-indm = floor(Nmm/2);% połowa pulsacji
-omega2m = omegam(1:indm);% wektor połowy pulsacji
-
-% estymator wygładzony
-
-Lmhat_Gn = 20*log10(abs(hat_Gn));
-Arghat_Gn = unwrap(angle(hat_Gn)) * 180/pi;
-Nm = size(abs(hat_Gn),2);
-dOmega = 2*pi/Nm;
-k = (0:1:Nm-1);
-Omega = dOmega*k;
-omega = Omega/Tp; 
-ind = floor(Nm/2);
-omega2 = omega(1:ind);
-
-% Nieznany w praktyce obiekt
-num = [1];
-den = [0.1 1.05 0.6 1];
-Go_s = tf(num,den);
-[mag,phase] = bode(Go_s,omega2);
-mag = squeeze(mag);
-mag = 20*log10(mag);
-phase = squeeze(phase);
-
-
-%% 3.1.4 (wykres) 3.1.6 (wykres)
-wykres2=figure('Position',[0 0 1300 800]);
-subplot(1,2,1)
-semilogx(omega2m, LmETFE(1:indm), 'LineWidth', 1);
+Wykres1 = figure("Position",[200 200 1400 800]);
+% subplot(1,2,1)
+set(gca,'TickLabelInterpreter','latex')
+sgtitle('Estymowane wykresy bodego, HILsys Dane ' + system,'FontSize',16,'interpreter','latex')
+plot(omega_k1(1:indm),LM1(1:indm),'LineWidth',1,'Color','#999999','Marker','.','MarkerSize',8);
 hold on
-semilogx(omega2, Lmhat_Gn(1:ind), 'LineWidth', 2);
-semilogx(omega2,mag, 'k--','LineWidth',2);
-hold off
-grid on;
-legend('$\hat{G}^*_N$','$\hat{G}_N$','$G_o$','interpreter','latex','fontsize',12);
-xlabel("$\omega [rad/s]$",'Interpreter','latex','FontSize',16);
-ylabel("Lm [dB]",'Interpreter','latex','FontSize',16);
-title('Charakterystyka amplitudowa', 'Interpreter','latex','FontSize',13);
-
-subplot(1,2,2)
-semilogx(omega2m, ArgETFE(1:indm), 'LineWidth', 1);
-hold on
-semilogx(omega2, Arghat_Gn(1:ind), 'LineWidth', 2);
-semilogx(omega2, phase, 'k--','LineWidth',2);
-hold off
-grid on;
-ylim([-500,500])
-legend('$\hat{G}^*_N$','$\hat{G}_N$','$G_o$','interpreter','latex','fontsize',12);
-xlabel("$\omega [rad/s]$",'Interpreter','latex','FontSize',16);
-ylabel("Arg [deg]",'Interpreter','latex','FontSize',16);
-title('Charakterystyka fazowa', 'Interpreter','latex','FontSize',13);
-sgtitle('Charakterystyka modulu Bodego', 'Interpreter','latex','FontSize',18);
+plot(omega_k2(1:indm2),LM2(1:indm2),'LineWidth',1,'Color','#000000','Marker','.','MarkerSize',8);
+ylabel("Wzmocnienie [dB]",'Interpreter','latex','FontSize',16)
+xlabel("czestotliwosc $\omega_k$ [rad] ",'Interpreter','latex','FontSize',16)
+xscale log
+grid on
+ylim([-50 10]);
+lgd = legend("$\hat{G}^*_N (j\Omega_k)$","$\hat{G}_N (j\Omega_k)$",'interpreter','latex');
+fontsize(lgd,14,"points")
+% odkomentowac do wykresu fazowego
+% subplot(1,2,2)
+% plot(omega_k1,unwrap(angle(G_hat15))*180/pi,'LineWidth',3);
+% hold on
+% plot(omega_k2,unwrap(angle(G_hat16))*180/pi,'LineWidth',3);
+% title("Przesuniecie fazowe",'Interpreter','latex','FontSize',14)
+% ylabel("Phase $[^\circ]$",'Interpreter','latex','FontSize',12)
+% xlabel("czestotliwosc $\omega_k$ [rad] ",'Interpreter','latex','FontSize',12)
+% xscale log
+% grid on
+% ylim([-500 500]);
+saveas(Wykres1,"Bode"+system,'jpg')
 
 end
 

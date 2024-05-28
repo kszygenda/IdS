@@ -1,0 +1,93 @@
+clear variables; clc; close all;
+
+Tp = 0.01;
+N = 3000;
+tend = Tp * N;
+ro = 10;
+
+%% Pokazanie danych
+load("IdentDataA.mat");
+szum_stalyA = mean(y(1:150));
+y(1:150) = y(1:150) - szum_stalyA;
+% figure('Position',[0 0 1400 800]);
+% title("dane A")
+% plot(t,y,'LineWidth',2)
+% hold on
+% plot(t,u,'LineWidth',2);
+% grid on
+% legend('y(t)','u(t)','fontsize',15)
+to_simA = timeseries([u, y],t, 'Name', 'to_simA');
+
+load("IdentDataB.mat");
+szum_stalyB = mean(y(1:150));
+y(1:150) = y(1:150) - szum_stalyB;
+% figure('Position',[0 0 1400 800]);
+% title("dane B")
+% plot(t,y,'LineWidth',2)
+% hold on
+% plot(t,u,'LineWidth',2);
+% grid on
+% legend('y(t)','u(t)','fontsize',15)
+to_simB = timeseries([u, y],t, 'Name', 'to_simB');
+
+load("IdentDataC.mat");
+szum_stalyC = mean(y(1:150));
+y(1:150) = y(1:150) - szum_stalyC;
+% figure('Position',[0 0 1400 800]);
+% title("dane C")
+% plot(t,y,'LineWidth',2)
+% hold on
+% plot(t,u,'LineWidth',2);
+% grid on
+% legend('y(t)','u(t)','fontsize',15)
+to_simC = timeseries([u, y],t, 'Name', 'to_simC');
+
+%% Inicjalizacja dla danych A
+global p_parAM1_1 P_macAM1_1 V_macAM1;
+global p_parAM2_1 P_macAM2_1 V_macAM2;
+global p_parAM3_1 P_macAM3_1 V_macAM3;
+%
+p_parAM1_1 = zeros(3,1);
+V_macAM1 = diag([1,1,1]*10^(-4));
+P_macAM1_1 = ro*eye(3,3);
+
+p_parAM2_1 = zeros(4,1);
+V_macAM2 = diag([1 1 1 1]*10^(-4));
+P_macAM2_1 = ro*eye(4,4);
+
+p_parAM3_1 = zeros(5,1);
+V_macAM3 = diag([1 1 1 1 1]*10^(-4));
+P_macAM3_1 = ro*eye(5,5);
+%% Inicjalizacja dla danych B
+global p_parBM1_1 P_macBM1_1 V_macBM1;
+global p_parBM2_1 P_macBM2_1 V_macBM2;
+global p_parBM3_1 P_macBM3_1 V_macBM3;
+
+p_parBM1_1 = zeros(3,1);
+V_macBM1 = diag([1,1,1]*10^(-4));
+P_macBM1_1 = ro*eye(3,3);
+
+p_parBM2_1 = zeros(4,1);
+V_macBM2 = diag([1 1 1 1]*10^(-4));
+P_macBM2_1 = ro*eye(4,4);
+
+p_parBM3_1 = zeros(5,1);
+V_macBM3 = diag([1 1 1 1 1]*10^(-4));
+P_macBM3_1 = ro*eye(5,5);
+
+%% Inicjalizacja dla danych C
+global p_parCM1_1 P_macCM1_1 V_macCM1;
+global p_parCM2_1 P_macCM2_1 V_macCM2;
+global p_parCM3_1 P_macCM3_1 V_macCM3;
+
+p_parCM1_1 = zeros(3,1);
+V_macCM1 = diag([1,1,1]*10^(-4));
+P_macCM1_1 = ro*eye(3,3);
+
+p_parCM2_1 = zeros(4,1);
+V_macCM2 = diag([1 1 1 1]*10^(-4));
+P_macCM2_1 = ro*eye(4,4);
+
+p_parCM3_1 = zeros(5,1);
+V_macCM3 = diag([1 1 1 1 1]*10^(-4));
+P_macCM3_1 = ro*eye(5,5);
