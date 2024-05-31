@@ -73,15 +73,15 @@ global p_parCM3_1 P_macCM3_1 V_macCM3;
 
 sigmaC = 10^(-2);
 p_parCM1_1 = zeros(3,1);
-V_macCM1 = diag([1,1,1]*sigmaC);
+V_macCM1 = diag([1,0,0]*sigmaC);
 P_macCM1_1 = ro*eye(3,3);
 
 p_parCM2_1 = zeros(4,1);
-V_macCM2 = diag([1 1 1 1]*sigmaC);
+V_macCM2 = diag([1 0 0 0]*sigmaC);
 P_macCM2_1 = ro*eye(4,4);
 
 p_parCM3_1 = zeros(5,1);
-V_macCM3 = diag([1 1 1 1 1]*sigmaC);
+V_macCM3 = diag([1 0 0 0 0]*sigmaC);
 P_macCM3_1 = ro*eye(5,5);
 
 %% Symulacja
@@ -193,7 +193,7 @@ y_m_a = zeros(1,N);
 u_a_n1 = 0;
 u_a_n2 = 0;
 for i = 1:length(y_m_a)
-y_m_a(i) = [-ya_n1 -ya_n2 u_a_n1 u_a_n2]*p_hat_CM1(i,1:4)';
+y_m_a(i) = [-ya_n1 -ya_n2 u_a_n1 u_a_n2]*p_hat_CM2(i,1:4)';
 ya_n2 = ya_n1;
 ya_n1 = y_m_a(i);
 u_a_n2 = u_a_n1;
@@ -206,7 +206,7 @@ y_m_b = zeros(1,N);
 u_b_n1 = 0;
 u_b_n2 = 0;
 for i = 1:length(y_m_b)
-y_m_b(i) = [-yb_n1 -yb_n2 u_b_n1 u_b_n2]*p_hat_CM1(i,1:4)';
+y_m_b(i) = [-yb_n1 -yb_n2 u_b_n1 u_b_n2]*p_hat_CM2(i,1:4)';
 yb_n2 = yb_n1;
 yb_n1 = y_m_b(i);
 u_b_n2 = u_b_n1;
@@ -219,7 +219,7 @@ y_m_c = zeros(1,N);
 u_c_n1 = 0;
 u_c_n2 = 0;
 for i = 1:length(y_m_c)
-y_m_c(i) = [-yc_n1 -yc_n2 u_c_n1 u_c_n2]*p_hat_CM1(i,1:4)';
+y_m_c(i) = [-yc_n1 -yc_n2 u_c_n1 u_c_n2]*p_hat_CM2(i,1:4)';
 yc_n2 = yc_n1;
 yc_n1 = y_m_c(i);
 u_c_n2 = u_c_n1;
@@ -260,3 +260,7 @@ legend('$y_s(n)$','$y_m(n)$','FontSize',14,'Interpreter','latex');
 set(gca,'TickLabelInterpreter','latex','FontSize',12);
 title("Porownanie modelu do danych C",'FontSize',16,'Interpreter','latex');
 
+
+%% Porownanie Przebiegow bodego.
+P_AM1 = p_hat_AM1(end);
+% AM1 = tf([],[])

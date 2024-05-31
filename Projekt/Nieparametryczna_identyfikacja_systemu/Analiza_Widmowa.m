@@ -85,7 +85,7 @@ ylabel("Wzmocnienie [dB]",'Interpreter','latex','FontSize',16)
 xlabel("czestotliwosc $\omega_k$ [rad] ",'Interpreter','latex','FontSize',16)
 xscale log
 grid on
-ylim([-50 10]);
+ylim([-10 10]);
 lgd = legend("$\hat{G}^*_N (j\Omega_k)$","$\hat{G}_N (j\Omega_k)$",'interpreter','latex');
 fontsize(lgd,14,"points")
 % odkomentowac do wykresu fazowego
